@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 60" width="400" height="60">
+  <rect width="400" height="60" fill="none"/>
+
+  <text x="20" y="42" font-family="Noto Sans KR, sans-serif" font-weight="700" font-size="36" fill="#8B0000" letter-spacing="-1px">
+    니코니코
+    <tspan font-weight="400" font-size="30" fill="#444" dy="-2">일본어학원</tspan>
+  </text>
+  
+  <circle cx="10" cy="30" r="3" fill="#8B0000"/>
+</svg>
