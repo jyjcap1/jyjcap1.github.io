@@ -1,108 +1,311 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import './App.css';
+import emailjs from '@emailjs/browser';
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const form = useRef();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 차장님이 요청하신 메뉴 구성입니다.
-  const menuItems = [
-    { name: '학원소개', id: 'about' },
-    { name: '교육과정안내', id: 'curriculum' },
-    { name: '입시정보', id: 'entrance' },
-    { name: '합격자후기', id: 'review' },
-    { name: '상담신청', id: 'contact' }
-  ];
+  const sendEmail = (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // EmailJS 설정 (가입 후 받은 ID들을 입력하세요)
+    // 서비스 가입 전 테스트용으로 알림창만 띄우도록 설정해두었습니다.
+    emailjs.sendForm('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', form.current, 'YOUR_PUBLIC_KEY')
+      .then((result) => {
+          alert("상담 신청이 완료되었습니다. 곧 연락드리겠습니다!");
+          form.current.reset();
+      }, (error) => {
+          alert("전송 중 오류가 발생했습니다. 전화(031-906-1588)로 문의 부탁드립니다.");
+      })
+      .finally(() => setIsSubmitting(false));
+  };
+  // 메뉴 토글 핸들러
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const closeMenu = () => setIsMenuOpen(false);
+
+  // 브라우저 탭 타이틀 설정
+  useEffect(() => {
+    document.title = "니코니코일본어전문학원";
+    
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') closeMenu();
+    };
+    
+    const handleResize = () => {
+      if (window.innerWidth > 820) closeMenu();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900">
-      
-      {/* 1. 상단 GNB (로고 + 메뉴 일렬 배치) */}
-      <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-sm z-50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+    <div className={`app-wrapper ${isMenuOpen ? 'menu-open' : ''}`}>
+      <header className="site-header">
+        <div className="container header-inner">
+          <a className="brand" href="/">
+            {/* 로고 경로 수정: public 폴더에 logo.svg가 있어야 합니다 */}
+            <img src="/logo.svg" alt="니코니코 일본어 학원 로고" style={{ height: '40px' }} />
+          </a>
           
-          {/* 로고 영역 */}
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-            <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center font-black text-white text-xl shadow-md">N</div>
-            <div className="leading-none">
-              <span className="text-xl font-black tracking-tight text-gray-900">NicoNico</span>
-              <p className="text-[10px] text-red-600 font-bold tracking-widest mt-0.5">JAPANESE ACADEMY</p>
-            </div>
-          </div>
-
-          {/* PC용 메인 메뉴 */}
-          <div className="hidden lg:flex items-center space-x-10 font-bold text-[15px] text-gray-700">
-            {menuItems.map((item) => (
-              <button 
-                key={item.id} 
-                className="hover:text-red-600 transition-all duration-200 relative group"
-                onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                {item.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-600 transition-all group-hover:w-full"></span>
-              </button>
-            ))}
-          </div>
-
-          {/* 모바일 메뉴 버튼 */}
-          <button className="lg:hidden p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"} />
-            </svg>
-          </button>
+          <nav className="site-nav" aria-label="주 메뉴">
+            <button 
+              className={`nav-toggle ${isMenuOpen ? 'is-open' : ''}`} 
+              onClick={toggleMenu}
+              aria-expanded={isMenuOpen}
+            >
+              <span className="bar"></span>
+              <span className="bar"></span>
+              <span className="bar"></span>
+            </button>
+            
+            <ul className={`nav-list ${isMenuOpen ? 'is-open' : ''}`}>
+              <li><a href="#about" onClick={closeMenu}>학원소개</a></li>
+              <li><a href="#notice" onClick={closeMenu}>강사소개</a></li>
+              <li><a href="#gallery" onClick={closeMenu}>강의프로그램</a></li>
+              <li><a href="#map" onClick={closeMenu}>오시는길</a></li>
+              <li><a href="#contact" onClick={closeMenu}>문의</a></li>
+            </ul>
+          </nav>
         </div>
+      </header>
 
-        {/* 모바일 레이아웃 메뉴 */}
-        {isMenuOpen && (
-          <div className="lg:hidden bg-white border-b py-6 px-8 flex flex-col gap-5 font-bold shadow-xl animate-fadeIn">
-            {menuItems.map((item) => (
-              <button key={item.id} className="text-left text-lg py-2" onClick={() => setIsMenuOpen(false)}>
-                {item.name}
-              </button>
-            ))}
-          </div>
-        )}
-      </nav>
+      <section className="hero">
+        <div className="hero-bg" style={{backgroundImage: "url('https://picsum.photos/1600/900?grayscale')"}}></div>
+        <div className="container hero-content">
+          <h1 className="hero-title">NikoNiko Japanese</h1>
+          <p className="hero-subtitle">일산 최고의 일본어 입시 파트너</p>
+        </div>
+      </section>
 
-      {/* 2. 메인 이미지 섹션 (중앙 정렬) */}
-      <section className="pt-32 pb-16 bg-white">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col items-center">
-          
-          {/* 아치형 이미지 프레임 (토다이 스타일) */}
-          <div className="relative w-full max-w-5xl rounded-t-[250px] overflow-hidden shadow-2xl border-x-[12px] border-t-[12px] border-white ring-1 ring-gray-100">
-            <div className="aspect-[16/9] relative group">
-              <img 
-                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop" 
-                alt="학원 메인" 
-                className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
-              />
-              {/* 이미지 위 오버레이 문구 */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col items-center justify-end pb-12 md:pb-20 text-white text-center px-4">
-                <h2 className="text-3xl md:text-5xl font-black mb-6 leading-tight drop-shadow-lg">
-                  꿈을 향한 일본어 정복, <br/> 니코니코가 함께합니다.
-                </h2>
-                <button className="bg-red-600 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-red-700 transition-transform hover:scale-105 shadow-xl flex items-center gap-3">
-                  상담신청 바로가기 <span className="text-2xl">→</span>
-                </button>
+      <main id="main">
+        {/* 학원 소개 섹션 */}
+        <section id="about" className="section">
+          <div className="container">
+            <div className="about-header">
+              <h3>About NikoNiko</h3>
+              <h2>일본 명문대 합격을 향한<br />가장 확실한 길</h2>
+            </div>
+
+            <div className="about-content">
+              <div className="about-image">
+                <img src="https://picsum.photos/800/600?study" alt="학원 내부 전경" />
+              </div>
+              <div className="about-text">
+                <strong>"결과로 증명하는 일본 입시 전문, 니코니코일본어학원"</strong>
+                <p>
+                  단순한 지식 전달을 넘어, 학생 개개인의 잠재력을 극대화하여 
+                  일본 명문 대학 합격이라는 목표를 함께 달성합니다. 
+                  매년 압도적인 합격생 배출로 그 가치를 증명하고 있습니다.
+                </p>
+                <p>
+                  꿈을 현실로 만드는 여정, 니코니코가 든든한 파트너가 되어 드리겠습니다.
+                </p>
+              </div>
+            </div>
+
+            <div className="philosophy-grid">
+              <div className="philosophy-item">
+                <span className="philosophy-icon">🎓</span>
+                <h4>전문 강사진</h4>
+                <p>일본 명문대 출신의 베테랑 강사진이 직접 지도합니다.</p>
+              </div>
+              <div className="philosophy-item">
+                <span className="philosophy-icon">📚</span>
+                <h4>맞춤형 전략</h4>
+                <p>EJU부터 본고사, 면접까지 개인별 밀착 관리를 제공합니다.</p>
+              </div>
+              <div className="philosophy-item">
+                <span className="philosophy-icon">🤝</span>
+                <h4>높은 합격률</h4>
+                <p>전통이 만든 데이터로 최적의 합격 로드맵을 제시합니다.</p>
               </div>
             </div>
           </div>
+        </section>
 
-          {/* 하단 포인트 스트라이프 */}
-          <div className="w-full max-w-5xl flex flex-col gap-1.5 mt-2">
-            <div className="h-1 bg-red-600/10"></div>
-            <div className="h-1 bg-red-600/30"></div>
-            <div className="h-1 bg-red-600"></div>
+        {/* 강사 소개 섹션 */}
+        <section id="notice" className="section section--alt">
+          <div className="container">
+            <div className="about-header" style={{ marginBottom: '40px' }}>
+              <h3>Instructors</h3>
+              <h2>합격의 주인공을 만드는 실력파 강사진</h2>
+            </div>
+
+            <div className="instructor-grid">
+              {[
+                { id: 1, name: "홍길동 원장", subject: "EJU 일본어 / 종합과목", desc: "와세다대학교 졸업. 15년 경력의 베테랑.", img: "https://picsum.photos/300/400?1" },
+                { id: 2, name: "나이토 아키에 강사", subject: "원어민 회화 / 소논문", desc: "도쿄대학교 교육학 석사. 정교한 첨삭 지도.", img: "https://picsum.photos/300/400?2" },
+                { id: 3, name: "전애리 강사", subject: "EJU 수학 / 이과과목", desc: "교토대학교 졸업. 기초부터 심화까지 완벽 정리.", img: "https://picsum.photos/300/400?3" }
+              ].map((teacher) => (
+                <div key={teacher.id} className="instructor-card">
+                  <div className="instructor-img">
+                    <img src={teacher.img} alt={teacher.name} />
+                  </div>
+                  <div className="instructor-info">
+                    <span className="subject">{teacher.subject}</span>
+                    <h4>{teacher.name}</h4>
+                    <p>{teacher.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 강의 프로그램 섹션 */}
+        <section id="gallery" className="section">
+          <div className="container">
+            <div className="about-header" style={{ marginBottom: '40px' }}>
+              <h3>Curriculum</h3>
+              <h2>단계별 맞춤 교육 과정</h2>
+            </div>
+
+            <div className="course-grid">
+              {[
+                { id: 1, title: "EJU 일본어/종합과목", subtitle: "입시의 핵심", content: "고득점을 위한 독해, 청독해 전략 대비.", tag: "BEST", icon: "📚" },
+                { id: 2, title: "JLPT N1/N2 집중반", subtitle: "자격증 취득", content: "단기간 합격 목표 실전 모의고사 중심.", tag: "HOT", icon: "📝" },
+                { id: 3, title: "본고사 & 소논문", subtitle: "상위권의 열쇠", content: "대학별 기출 분석과 1:1 대면 첨삭 지도.", tag: "SPECIAL", icon: "✍️" },
+                { id: 4, title: "실전 면접 대비반", subtitle: "최종 합격", content: "지망이유서부터 모의 면접까지 완벽 케어.", tag: "FINAL", icon: "🤝" }
+              ].map((course) => (
+                <div key={course.id} className="course-card">
+                  <div className="course-tag">{course.tag}</div>
+                  <div className="course-icon">{course.icon}</div>
+                  <h4>{course.title}</h4>
+                  <span className="course-subtitle">{course.subtitle}</span>
+                  <p className="course-desc">{course.content}</p>
+                  <a href="#contact" className="course-link">상담 예약 →</a>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 오시는 길 섹션 */}
+        <section id="map" className="section section--alt">
+          <div className="container">
+            <div className="about-header" style={{ marginBottom: '40px' }}>
+              <h3>Location</h3>
+              <h2>니코니코일본어학원 오시는 길</h2>
+            </div>
+
+            <div className="map-wrapper">
+              <div className="map-content">
+                <div className="map-embed">
+                  <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3161.4390509312384!2d126.77617507635671!3d37.65144121932375!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357c854b987d52bd%3A0xf3ccb50468137731!2z64uI7L2U64uI7L2U7J2867O47Ja07ZWZ7JuQ!5e0!3m2!1sko!2skr!4v1710123456789!5m2!1sko!2skr"
+                    width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" title="NikoNiko Map"
+                  ></iframe>
+                </div>
+              </div>
+
+              <div className="map-info">
+                <div className="info-item">
+                  <h4>📍 ADDRESS</h4>
+                  <p>경기도 고양시 일산동구 정발산로 43-20<br />중앙프라자 4층 (장항동)</p>
+                </div>
+                <div className="info-item">
+                  <h4>📞 CONTACT</h4>
+                  <p>전화: 031-906-1588</p>
+                </div>
+                <div className="info-item">
+                  <h4>🚇 SUBWAY</h4>
+                  <p>3호선 정발산역 1번 출구 도보 3분</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        {/* 문의하기 셋션 */}
+        <section id="contact" className="section">
+          <div className="container">
+            <div className="about-header" style={{ marginBottom: '40px' }}>
+              <h3>Admission</h3>
+              <h2>입학 상담 신청</h2>
+              <p className="contact-intro">상담 신청을 남겨주시면 담당 선생님이 확인 후 연락드립니다.</p>
+            </div>
+
+            <form ref={form} className="contact-form" onSubmit={sendEmail}>
+              <div className="form-group">
+                <label htmlFor="user_name">학생 성함</label>
+                <input 
+                  id="user_name" 
+                  name="user_name" 
+                  type="text" 
+                  placeholder="성함을 입력해주세요" 
+                  required 
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="user_phone">연락처</label>
+                <input 
+                  id="user_phone" 
+                  name="user_phone" 
+                  type="tel" 
+                  placeholder="010-0000-0000" 
+                  required 
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="message">상담 내용 (선택)</label>
+                <textarea 
+                  id="message" 
+                  name="message" 
+                  rows="4" 
+                  placeholder="희망 강좌나 궁금한 점을 적어주세요"
+                ></textarea>
+              </div>
+
+              <button className="btn btn-primary submit-btn" type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "전송 중..." : "상담 신청하기"}
+              </button>
+            </form>
+          </div>
+        </section>
+      </main>
+
+      <footer className="site-footer">
+        <div className="container footer-inner">
+          {/* 상단 로고 및 학원명 */}
+          <div className="footer-top">
+            <h3 className="footer-logo">니코니코일본어학원</h3>
+          </div>
+
+          {/* 중간 상세 정보 */}
+          <div className="footer-info">
+            <div className="info-row">
+              <span>대표자 : 홍길동</span>
+              <span className="divider">|</span>
+              <span>주소 : 경기도 고양시 일산동구 정발산로 43-20 중앙프라자 4층 (장항동)</span>
+            </div>
+            <div className="info-row">
+              <span>사업자등록번호 : 101-11-111111</span>
+              <span className="divider">|</span>
+              <span>경기도교육청 등록 제1111호</span>
+            </div>
+            <div className="info-row">
+              <span>TEL : 031-906-1588</span>
+              <span className="divider">|</span>
+              <span>FAX : 031-1111-2222</span>
+            </div>
+          </div>
+
+          {/* 하단 카피라이트 */}
+          <div className="footer-bottom">
+            <p>COPYRIGHT ⓒ {new Date().getFullYear()} NikonikoJapanese.com ALL RIGHTS RESERVED.</p>
           </div>
         </div>
-      </section>
-
-      {/* 3. 학원소개 섹션 */}
-      <section id="about" className="py-24 max-w-5xl mx-auto px-6 text-center">
-        <h3 className="text-sm font-black text-red-600 tracking-[0.3em] mb-4 uppercase">Introduction</h3>
-        <h2 className="text-4xl font-bold mb-10">니코니코 학원을 소개합니다</h2>
-        <div className="aspect-video bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400">
-           여기에 학원 소개 영상을 넣거나 사진을 배치하세요.
-        </div>
-      </section>
+      </footer>
     </div>
   );
 }
