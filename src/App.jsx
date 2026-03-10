@@ -51,10 +51,10 @@ function App() {
     <div className={`app-wrapper ${isMenuOpen ? 'menu-open' : ''}`}>
       <header className="site-header">
         <div className="container header-inner">
-          <a className="brand" href="/">
-            {/* 로고 경로 수정: public 폴더에 logo.svg가 있어야 합니다 */}
-            <img src="/logo.svg" alt="니코니코 일본어 학원 로고" style={{ height: '40px' }} />
-          </a>
+        <a className="brand" href="/">
+          <img src="/niko_ico.jpg" alt="로고" className="site-logo" />
+          <span className="brand-text">니코니코 일본어 학원</span>
+        </a>
           
           <nav className="site-nav" aria-label="주 메뉴">
             <button 
@@ -79,10 +79,13 @@ function App() {
       </header>
 
       <section className="hero">
-        <div className="hero-bg" style={{backgroundImage: "url('https://picsum.photos/1600/900?grayscale')"}}></div>
-        <div className="container hero-content">
-          <h1 className="hero-title">NikoNiko Japanese</h1>
-          <p className="hero-subtitle">일산 최고의 일본어 입시 파트너</p>
+        {/* container 밖이 아니라 안으로 옮깁니다 */}
+        <div className="container hero-container">
+          <div className="hero-bg" style={{backgroundImage: "url('https://picsum.photos/1600/900?grayscale')"}}></div>
+          <div className="hero-content">
+            <h1 className="hero-title">NikoNiko Japanese</h1>
+            <p className="hero-subtitle">일산 최고의 일본어 입시 파트너</p>
+          </div>
         </div>
       </section>
 
@@ -142,7 +145,7 @@ function App() {
 
             <div className="instructor-grid">
               {[
-                { id: 1, name: "홍길동 원장", subject: "EJU 일본어 / 종합과목", desc: "와세다대학교 졸업. 15년 경력의 베테랑.", img: "https://picsum.photos/300/400?1" },
+                { id: 1, name: "전애나 원장", subject: "EJU 일본어 / 종합과목", desc: "와세다대학교 졸업. 15년 경력의 베테랑.", img: "https://picsum.photos/300/400?1" },
                 { id: 2, name: "나이토 아키에 강사", subject: "원어민 회화 / 소논문", desc: "도쿄대학교 교육학 석사. 정교한 첨삭 지도.", img: "https://picsum.photos/300/400?2" },
                 { id: 3, name: "전애리 강사", subject: "EJU 수학 / 이과과목", desc: "교토대학교 졸업. 기초부터 심화까지 완벽 정리.", img: "https://picsum.photos/300/400?3" }
               ].map((teacher) => (
@@ -306,6 +309,41 @@ function App() {
           </div>
         </div>
       </footer>
+
+
+      {/* 플로팅 버튼 컨테이너 */}
+      <div className="floating-buttons">
+        {/* 네이버 톡톡 버튼 */}
+        <a 
+          href="https://talk.naver.com/WXXXXX" // 본인의 네이버 톡톡 주소로 변경하세요
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="float-button naver-talk"
+          aria-label="네이버 톡톡 상담하기"
+        >
+           {/* 네이버 톡톡 공식 로고 형태 SVG */}
+           {/* public/navertoktok.png 파일을 직접 사용 */}
+          <img 
+            src="/navertoktok.png" 
+            alt="네이버 톡톡" 
+            style={{ width: '100%', height: '100%', borderRadius: '50%' }} 
+          />
+        </a>
+
+        {/* 카카오톡 버튼 */}
+        <a 
+          href="https://pf.kakao.com/_xxxxxx" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="float-button kakao-talk"
+          aria-label="카카오톡 상담하기"
+        >
+          <img 
+            src="https://upload.wikimedia.org/wikipedia/commons/e/e3/KakaoTalk_logo.svg" 
+            alt="카카오톡" 
+          />
+        </a>
+      </div>  
     </div>
   );
 }
